@@ -20,23 +20,24 @@ arr2 = np.array([[1, 2, 3], [4, 5, 6]])
 # var 1
 comb = np.array([(i, j) for i in arr2[0] for j in arr2[1]])
 # var 2
-mesh = np.meshgrid(*arr2)
-combinations = np.vstack([m.flatten() for m in mesh]).T
+combinations = np.array(np.meshgrid(arr2[0], arr2[1])).T.reshape(-1, 2)
 
 
 # Task 4
-arr3 = np.array([[1, 2, 3],
-                 [4, 5, 6],
-                 [7, 8, 9],
-                 [2, 1, 3],
-                 [4, 6, 5],
-                 [3, 1, 2],
-                 [9, 8, 7],
-                 [6, 4, 5]])
+A = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9],
+              [2, 1, 3],
+              [4, 6, 5],
+              [3, 1, 2],
+              [9, 8, 7],
+              [6, 4, 5]])
 
-arr4 = np.array([[1, 2],
-                 [3, 4]])
-res = arr3[np.isin(arr3, arr4).sum(axis=1) == arr4.size]
+B = np.array([[1, 2],
+              [3, 4]])
+
+possible_pairs = [(i, j) for i in B[0] for j in B[1]]
+row_with_elements = np.array([row for row in A if np.isin(row, possible_pairs).all()])
 
 
 # Task 5
@@ -50,6 +51,9 @@ arr5 = np.array([[1, 2, 3],
                  [2, 2, 2],
                  [3, 3, 3],
                  [8, 8, 8]])
+unequal_rows = np.array([row for row in arr5 if len(np.unique(row)) > 1])
+
+
 # Task 6
 arr6 = np.array([[1, 2, 3],
                  [4, 5, 6],
@@ -61,7 +65,7 @@ unique_arr = np.unique(arr6, axis=0)
 
 
 '''
-Python and nupy
+Python and Numpy
 '''
 # Task 1
 X = np.array([[1, 0, 1], [2, 0, 2], [3, 0, 3], [4, 4, 4]])
@@ -73,20 +77,44 @@ for i in X:
             counter += 1
 
 zero_in_diagonal = np.diagonal(X)
-zero_in_diagonal = np.prod(zero_in_diagonal[zero_in_diagonal != 0])
+res_2 = np.prod(zero_in_diagonal[zero_in_diagonal != 0])
 
 
 # Task 2
 x = np.array([1, 2, 2, 4])
 y = np.array([4, 2, 1, 2])
 
+res_1 = [True if set(x) == set(y) else False]
+res_2 = np.array_equal(np.sort(x), np.sort(y))
+
 
 # Task 3
 e = np.array([6, 2, 0, 3, 0, 0, 5, 7, 0])
 
+max_element = 0
+for i in range(len(e[1:])):
+    i += 1
+    if e[i-1] == 0 and e[i] > max_element:
+        max_element = e[i]
+res_1 = max_element
+
+zero = e == 0
+res_2 = e[1:][zero[:-1]].max()
+
 
 # Task 4
 f = np.array([2, 2, 2, 3, 3, 3, 5])
+
+new_dict = {}
+for i in f:
+    if i in new_dict:
+        new_dict[i] += 1
+    else:
+        new_dict[i] = 1
+res_1 = np.array([[i for i in new_dict.keys()], [j for j in new_dict.values()]])
+
+unique_arr = np.unique(f, axis=0)
+res_2 = np.array([[j for j in unique_arr], [(np.sum(f == i)) for i in unique_arr]])
 
 
 # Task 5
