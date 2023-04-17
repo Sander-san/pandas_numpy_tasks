@@ -1,23 +1,18 @@
 import pandas as pd
 
-
 adult = pd.read_csv('./data/adult.data.csv')
-
 
 # Task 1
 male_and_female_counts = adult['sex'].value_counts()
 
-
 # Task 2
 total_avg_age = round(adult['age'][adult['sex'] == 'Male'].mean())
-
 
 # Task 3
 total_people = adult['native-country'].count()
 people_from_us = adult['native-country'][adult['native-country'] == 'United-States'].count()
 other_people = adult['native-country'][adult['native-country'] != 'United-States'].count()
 percent_from_total = round(people_from_us / total_people * 100)
-
 
 # Task 4-5
 avg_deviation_big_salary = adult['age'][adult['salary'] == '>50K'].std()
@@ -26,8 +21,9 @@ avg_deviation_small_salary = adult['age'][adult['salary'] == '<=50K'].std()
 
 # Task 6
 def check_education_lvl(data):
-    people_with_big_salary = data['education'][adult['salary'] == '>50K'].isin(['Bachelors', 'Prof-school', 'Assoc-acdm',
-                                                        'Assoc-voc', 'Masters', 'Doctorate']).describe()
+    people_with_big_salary = data['education'][adult['salary'] == '>50K'].isin(['Bachelors', 'Prof-school',
+                                                                                'Assoc-acdm', 'Assoc-voc',
+                                                                                'Masters', 'Doctorate']).describe()
 
     if people_with_big_salary['count'] == people_with_big_salary['freq']:
         return 'Absolute true'
@@ -39,7 +35,6 @@ def check_education_lvl(data):
 
 check_education_lvl(adult)
 
-
 # Task 7
 age_by_race_statistic = adult.groupby('race')['age'].describe()
 oldest_pac_asian = adult['age'][adult['race'] == 'Asian-Pac-Islander'].max()
@@ -48,15 +43,15 @@ oldest_pac_asian = adult['age'][adult['race'] == 'Asian-Pac-Islander'].max()
 # Task 8
 def which_man_earns_more(data):
     married_men = data['salary'][
-              (data['sex'] == 'Male') &
-              (data['salary'] == '>50K') &
-              (data['marital-status'].isin(['Married-civ-spouse', 'Married-spouse-absent', ' Married-AF-spouse']))
-          ].count()
+        (data['sex'] == 'Male') &
+        (data['salary'] == '>50K') &
+        (data['marital-status'].isin(['Married-civ-spouse', 'Married-spouse-absent', ' Married-AF-spouse']))
+        ].count()
     single_men = data['salary'][
-              (data['sex'] == 'Male') &
-              (data['salary'] == '>50K') &
-              (~data['marital-status'].isin(['Married-civ-spouse', 'Married-spouse-absent', ' Married-AF-spouse']))
-          ].count()
+        (data['sex'] == 'Male') &
+        (data['salary'] == '>50K') &
+        (~data['marital-status'].isin(['Married-civ-spouse', 'Married-spouse-absent', ' Married-AF-spouse']))
+        ].count()
 
     if married_men > single_men:
         return f'Married men earns more'
@@ -76,7 +71,7 @@ def who_works_more(data):
     with_big_salary = data['hours-per-week'][
         (data['hours-per-week'] == max_time) &
         (data['salary'] == '>50K')
-    ].count()
+        ].count()
     return f'Max available time per week - {max_time}\n' \
            f'The total number of people who work these hours - {total}\n' \
            f'People with big salary percent - {round(with_big_salary / total * 100)}%'
@@ -84,22 +79,33 @@ def who_works_more(data):
 
 who_works_more(adult)
 
-
 # Task 10
 avg_work_hours_in_diff_countries = adult.groupby(['native-country', 'salary'])['hours-per-week'].mean()
 
 
 # Task 11
-adult.loc[(adult['age'] < 36), 'age-group'] = 'young'
-adult.loc[(adult['age'] > 35) & (adult['age'] < 70), 'age-group'] = 'adult'
-adult.loc[(adult['age'] > 69), 'age-group'] = 'retiree'
+# adult.loc[(adult['age'] < 36), 'age-group'] = 'young'
+# adult.loc[(adult['age'] > 35) & (adult['age'] < 70), 'age-group'] = 'adult'
+# adult.loc[(adult['age'] > 69), 'age-group'] = 'retiree'
+
+def get_age_group(age):
+    if 16 <= age <= 35:
+        return 'young'
+    elif 35 < age <= 70:
+        return 'adult'
+    elif 70 < age <= 100:
+        return 'retiree'
+
+
+adult['age-group'] = adult['age'].apply(get_age_group)
 
 
 # Task 12-13
+# Var 1
 def salary_by_age_groups(data):
-    y = adult['salary'][(adult['salary'] == '>50K') & (adult['age-group'] == 'young')].count()
-    a = adult['salary'][(adult['salary'] == '>50K') & (adult['age-group'] == 'adult')].count()
-    r = adult['salary'][(adult['salary'] == '>50K') & (adult['age-group'] == 'retiree')].count()
+    y = data['salary'][(data['salary'] == '>50K') & (data['age-group'] == 'young')].count()
+    a = data['salary'][(data['salary'] == '>50K') & (data['age-group'] == 'adult')].count()
+    r = data['salary'][(data['salary'] == '>50K') & (data['age-group'] == 'retiree')].count()
 
     m = max(y, a, r)
     if a == m:
@@ -113,29 +119,22 @@ def salary_by_age_groups(data):
 
 
 salary_by_age_groups(adult)
-# groups = adult.groupby(['age-group', 'salary'])['salary'].count()
+
+# Var 2
+income_counts = adult[adult['salary'] == '>50K'].groupby('age-group').size()
+max_income_counts = adult[adult['salary'] == '>50K'].groupby('age-group').size().max()
 
 
 # Task 14
-def filter_func(data):
-    people_count_in_occupations = adult.groupby('occupation')['occupation'].count()
-    avg_age_in_occupation = adult.groupby(['occupation'])[['age']].mean()
-
-    return 'zalupa'
+occupation_counts = adult['occupation'].value_counts()
 
 
-# print(filter_func(adult))
+def filter_func(group):
+    avg_age = group['age'].mean()
+    min_hours_per_week = group['hours-per-week'].min()
+    return avg_age <= 40 and min_hours_per_week > 5
 
 
+filtered_groups = occupation_counts[occupation_counts.index.map(lambda x: filter_func(adult[adult['occupation'] == x]))]
 
-
-
-
-# to check data
-test2 = adult['occupation']
-print(f'All occupations - {test2.unique()}')
-print(f'Total people - {21790 + 10771}')
-
-# print(adult['occupation'][adult['hours-per-week'] > 5])
-# print(adult['occupation'][adult['hours-per-week'] > 5].unique())  # same count as test2
 
